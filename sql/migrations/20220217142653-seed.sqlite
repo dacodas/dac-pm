@@ -1,0 +1,112 @@
+-- Consider the default issue types [here][jira-issue-types]
+--
+-- [jira-issue-types]: https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/
+
+CREATE TABLE issue_type (
+	id INTEGER PRIMARY KEY,
+	type TEXT UNIQUE NOT NULL
+);
+
+INSERT INTO issue_type VALUES
+	-- Development
+	(1, "Task"),
+	(2, "Subtask"),
+	(3, "Epic"),
+	(4, "Bug"),
+	(5, "Story"),
+	
+	-- Service management
+	(6, "Change"),
+	(7, "IT help"),
+	(8, "Incident"),
+	(9, "New feature"),
+	(10, "Problem"),
+	(11, "Service request"),
+	(12, "Support")
+;
+
+CREATE TABLE application (
+	id INTEGER PRIMARY KEY,
+	application TEXT UNIQUE NOT NULL
+)
+;
+
+INSERT INTO application VALUES
+	(1, "GitLab infrastructure"),
+	(2, "GitLab runners"),
+	(3, "GitLab"),
+	(4, "Hashicorp Vault"),
+	(5, "Elasticsearch"),
+	(6, "Kubereview"),
+	(7, "Ansible repository"),
+	(8, "SCMDB"),
+	(9, "TeamForge"),
+	(10, "BDT and AWP"),
+	(11, "NGINX"),
+	(12, "SWE build machines"),
+	(13, "SVT machines")
+;
+
+-- Priority
+
+CREATE TABLE person (
+	id INTEGER PRIMARY KEY,
+	name TEXT UNIQUE NOT NULL
+);
+
+INSERT INTO person VALUES
+	(1, "Dacoda Strack"),
+	(2, "Phil Eurs"),
+	(3, "Jim Bush"),
+	(4, "Vytautas Vysniauskas")
+;
+
+-- Issue links
+
+CREATE TABLE issue_relation (
+	id INTEGER PRIMARY KEY,
+	relation TEXT UNIQUE NOT NULL
+);
+
+-- Consider [WBS Gantt Chart][wbs-gantt-custom-fields] and the [default
+-- JIRA][jira-relations] relations
+-- 
+-- Note that "blocks" is probably a less specific version of the Gantt
+-- relationships and is thus a candidate for deletion.
+-- 
+-- [wbs-gantt-custom-fields]: https://docs.ricksoft-inc.com/wbs-gantt-chart-for-jira-data-center-and-server-0914/Jira-custom-field,-issue-type,-and-issue-link-created-by-WBS-Gantt-Chart-for-Jira.2930802984.html
+-- [jira-relations]: https://confluence.atlassian.com/jiracoreserver073/linking-issues-861257339.html
+
+INSERT INTO issue_relation VALUES
+	(1, "Parent"),
+	(2, "Start to start"),
+	(3, "Start to finish"),
+	(4, "Finish to start"),
+	(5, "Finish to finish"),
+	(6, "Relates"),
+	(7, "Duplicates"),
+	(8, "Blocks")
+;
+
+CREATE TABLE issue_link (
+	id INTEGER PRIMARY KEY,
+	outward INTEGER,
+	inward INTEGER,
+	relation INTEGER,
+	CONSTRAINT outward_fk FOREIGN KEY (outward) REFERENCES issue (id),
+	CONSTRAINT inward_fk FOREIGN KEY (inward) REFERENCES issue (id),
+	CONSTRAINT relation_fk FOREIGN KEY (relation) REFERENCES issue_relation (id)
+);
+
+CREATE TABLE issue (
+	id INTEGER PRIMARY KEY,
+	type INTEGER,
+	application INTEGER,
+	assignee INTEGER,
+	summary TEXT,
+	description TEXT,
+	CONSTRAINT application_fk FOREIGN KEY (application) REFERENCES application (id),
+	CONSTRAINT type_fk FOREIGN KEY (type) REFERENCES issue_type (id),
+	CONSTRAINT assignee_fk FOREIGN KEY (assignee) REFERENCES person (id)
+);
+
