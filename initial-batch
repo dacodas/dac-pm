@@ -1,0 +1,71 @@
+CREATE TABLE issue (
+	id INTEGER PRIMARY KEY,
+	type INTEGER,
+	application INTEGER,
+	assignee INTEGER,
+	summary TEXT,
+	description TEXT, planned_start_date INTEGER NOT NULL  -- Unix time, in seconds
+	DEFAULT 1645776000, planned_duration INTEGER NOT NULL -- Duration of time, in seconds
+	DEFAULT 259200, planned_effort INTEGER NOT NULL -- Duration of time, in seconds
+	DEFAULT 28800, percentage_complete DECIMAL(3, 0) NOT NULL
+	CONSTRAINT is_a_percentage CHECK (
+		percentage_complete >= 0
+			and percentage_complete <= 100
+	)
+	DEFAULT 0, status INTEGER NOT NULL
+	CONSTRAINT fk_issue_status REFERENCES issue_status (id)
+	DEFAULT 1,
+	CONSTRAINT application_fk FOREIGN KEY (application) REFERENCES application (id),
+	CONSTRAINT type_fk FOREIGN KEY (type) REFERENCES issue_type (id),
+	CONSTRAINT assignee_fk FOREIGN KEY (assignee) REFERENCES person (id)
+);
+
++-----+---------------------+---------------+---------+------------+----+
+| cid |        name         |     type      | notnull | dflt_value | pk |
++-----+---------------------+---------------+---------+------------+----+
+| 0   | id                  | INTEGER       | 0       |            | 1  |
+| 1   | type                | INTEGER       | 0       |            | 0  |
+| 2   | application         | INTEGER       | 0       |            | 0  |
+| 3   | assignee            | INTEGER       | 0       |            | 0  |
+| 4   | summary             | TEXT          | 0       |            | 0  |
+| 5   | description         | TEXT          | 0       |            | 0  |
+| 6   | planned_start_date  | INTEGER       | 1       | 1645776000 | 0  |
+| 7   | planned_duration    | INTEGER       | 1       | 259200     | 0  |
+| 8   | planned_effort      | INTEGER       | 1       | 28800      | 0  |
+| 9   | percentage_complete | DECIMAL(3, 0) | 1       | 0          | 0  |
+| 10  | status              | INTEGER       | 1       | 1          | 0  |
++-----+---------------------+---------------+---------+------------+----+
+
+summary
+application
+type
+assignee
+planned_start_date
+planned_duration
+planned_effort
+percentage_complete
+status
+description
+
+What ought the template look like?
+
+```
+<Summary>
+<Application>
+<Type>
+Dacoda Strack
+echo $( date -d Tomorrow '+%Y-%m-%d 10:00' )
+P2W
+04:00
+0
+<Status>
+<Description>
+```
+
+Expand tf-sna01 OS disk through ECR
+TeamForge
+Task
+Dacoda Strack
+Teamforge needs to have its root volume expanded to avoid further disk space issues. See [CHG0035779][cr]
+
+[cr]: https://pac.service-now.com/nav_to.do?uri=%2Fchange_request.do%3Fsys_id%3D9e0f466c8735cd1083b4a7dd3fbb3593%26sysparm_view%3D%26sysparm_domain%3Dnull%26sysparm_domain_scope%3Dnull%26sysparm_record_row%3D1%26sysparm_record_rows%3D16%26sysparm_record_list%3Dopened_by%253dcf67e5bc1bf20c1022024118cc4bcb8d%255eu_organization_type%253dIT%255eORu_organization_type%253d%255eORopened_byDYNAMICcf67e5bc1bf20c1022024118cc4bcb8d%255eORrequested_byDYNAMICcf67e5bc1bf20c1022024118cc4bcb8d%255eORDERBYstate
