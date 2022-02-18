@@ -1,25 +1,3 @@
-CREATE TABLE issue (
-	id INTEGER PRIMARY KEY,
-	type INTEGER,
-	application INTEGER,
-	assignee INTEGER,
-	summary TEXT,
-	description TEXT, planned_start_date INTEGER NOT NULL  -- Unix time, in seconds
-	DEFAULT 1645776000, planned_duration INTEGER NOT NULL -- Duration of time, in seconds
-	DEFAULT 259200, planned_effort INTEGER NOT NULL -- Duration of time, in seconds
-	DEFAULT 28800, percentage_complete DECIMAL(3, 0) NOT NULL
-	CONSTRAINT is_a_percentage CHECK (
-		percentage_complete >= 0
-			and percentage_complete <= 100
-	)
-	DEFAULT 0, status INTEGER NOT NULL
-	CONSTRAINT fk_issue_status REFERENCES issue_status (id)
-	DEFAULT 1,
-	CONSTRAINT application_fk FOREIGN KEY (application) REFERENCES application (id),
-	CONSTRAINT type_fk FOREIGN KEY (type) REFERENCES issue_type (id),
-	CONSTRAINT assignee_fk FOREIGN KEY (assignee) REFERENCES person (id)
-);
-
 +-----+---------------------+---------------+---------+------------+----+
 | cid |        name         |     type      | notnull | dflt_value | pk |
 +-----+---------------------+---------------+---------+------------+----+
@@ -56,16 +34,284 @@ What ought the template look like?
 Dacoda Strack
 echo $( date -d Tomorrow '+%Y-%m-%d 10:00' )
 P2W
-04:00
+P4H
 0
 <Status>
 <Description>
 ```
 
-Expand tf-sna01 OS disk through ECR
+---
+Consider taking over Elton's Windows Jenkins build machine
+SWE build machines
+Story
+Dacoda Strack
+2022-02-18 10:00
+P2W
+08:00
+0
+Open
+Elton seems to be struggling with keeping up to date with this Jenkins build
+machine. Plus it is in AWS which he is not going to be monitoring. I have some
+doubts about whether he should be in charge of this, and perhaps we can provide
+a better experience to the build team. Let's start asking around
+
+> I'm curious, Elton, if Global IT's Windows team expressed interest in taking
+> this machine over and taking charge of procuring the licenses, would you be
+> interested in handing this machine off over to them
+>
+> I would be able to work directly with the Windows team and the build team to
+> get the Jenkins integration going 
+>
+> Because I think they would be able to share knowledge, and leverage their
+> experience to make things easier on the organization
+---
+Collaborate with David's team on a place for official IT documents for other departments
+<Application>
+New feature
+Dacoda Strack
+2022-02-18 10:00
+P1W
+04:00
+10
+In progress
+There are some decisions that we need to communicate with other departments on
+and that need to be revisited further down the line. The main impetus for
+wanting this space is the SWE build machines which are now temporarily in our
+vSphere infrastructure, but that we have agreed should eventually be migrated
+to Azure. This place would serve to record our agreement that we will be
+migrating, and to update with information from our monthly, quarterly, or
+biannual touch-bases.
+
+Two other projects in a similar boat are the iConfig machines and the SVT
+machines.
+---
+Confirm that alerts for Azure Linux machines are reaching PagerDuty and KONOS
+<Application>
+Bug
+Dacoda Strack
+2022-02-18 10:00
+P1W
+04:00
+0
+Open
+TeamForge had two issues with disk space running low and alerts not making it
+to PagerDuty. There is quite a bit of conversation from 2022-02-17 that can be
+transcribed here. For now, Dacoda just needs to confirm that the most basic,
+for example, disk space alerts should be coming from Azure.
+---
+Add SolarWinds monitoring to Elastic and other Dacoda-managed Linux nodes
+Elasticsearch
+Task
+Dacoda Strack
+2022-02-18 10:00
+P2W
+04:00
+0
+To do
+Dacoda has learned that Solarwinds monitoring has to be configured on a
+per-machine basis. Thanks to Vytautas's Ansible configurations, once the node
+is added to SolarWinds, we get all of the monitoring for free, easy-peasy.
+
+This task might also benefit from including monitoring for...
+
+- Vault
+---
+Consolidate and expand TeamForge data disk
 TeamForge
 Task
 Dacoda Strack
-Teamforge needs to have its root volume expanded to avoid further disk space issues. See [CHG0035779][cr]
+2022-02-18 10:00
+P1W
+02:00
+0
+To do
+While discussing the lack of alerts for TeamForge, we considered that perhaps
+the virtual machine has been in an alerting state for as long as the
+`/opt/collabnet` mount has been over it's threshold. In order to pursue this
+theory, we would like to expand the disk space so that we aren't being
+triggered.
 
-[cr]: https://pac.service-now.com/nav_to.do?uri=%2Fchange_request.do%3Fsys_id%3D9e0f466c8735cd1083b4a7dd3fbb3593%26sysparm_view%3D%26sysparm_domain%3Dnull%26sysparm_domain_scope%3Dnull%26sysparm_record_row%3D1%26sysparm_record_rows%3D16%26sysparm_record_list%3Dopened_by%253dcf67e5bc1bf20c1022024118cc4bcb8d%255eu_organization_type%253dIT%255eORu_organization_type%253d%255eORopened_byDYNAMICcf67e5bc1bf20c1022024118cc4bcb8d%255eORrequested_byDYNAMICcf67e5bc1bf20c1022024118cc4bcb8d%255eORDERBYstate
+Furthermore, we can use this task to create a new single disk with enough space
+and `pvmove` LVM extents to the new disk in order to consolidate how many disks
+we have attached to the machine.
+
+Relates 'Confirm that alerts for Azure Linux machines are reaching PagerDuty and KONOS'
+---
+SolarWinds for AWS
+<Application>
+Epic
+Dacoda Strack
+2022-02-18 10:00
+P3M
+P100H
+0
+Open
+An epic to track progress on AWS for Solarwinds, and related activities
+
+Parent 'Determine if CPC can leverage SolarWinds for AWS along with PagerDuty'
+Parent 'Build cross-account deployments of any SolarWinds infrastructure needed'
+Parent 'Determine and implement SolarWinds monitoring for IT GitLab'
+---
+Determine and implement SolarWinds monitoring for IT GitLab
+GitLab infrastructure
+Change
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P8H
+0
+To do
+This is bare minimum that needs to be done so that we are much more proactive
+with GitLab and not being woken up with errors
+
+Finish to start 'Determine if CPC can leverage SolarWinds for AWS along with PagerDuty'
+---
+Determine if CPC can leverage SolarWinds for AWS along with PagerDuty
+<Application>
+Story
+Dacoda Strack
+2022-02-18 10:00
+P1M
+P36H
+0
+To do
+As part of our exploration of SolarWinds for AWS monitoring, we should see if
+CPC is interested in going halfsies on PagerDuty and Solarwinds for AWS
+
+Finish to start 'Build cross-account deployments of any SolarWinds infrastructure needed'
+---
+Build cross-account deployments of any SolarWinds infrastructure needed
+<Application>
+Task
+Dacoda Strack
+2022-03-15 10:00
+P1M
+P18H
+0
+To do
+If we determine that our work for SolarWinds monitoring is applicable to more
+people than just IT, then we need to determine how to make our solution
+applicable to other folks.
+---
+MCS Ansible and GitLab
+Ansible repository
+Epic
+Dacoda Strack
+2022-02-18 10:00
+P2M
+P16H
+0
+Open
+This is to track progress on having a solid collaboration and deployment
+strategy for MCS Ansible
+
+Parent 'Redeploy the MCS Ansible `linuxmgmt` machine'
+Parent 'Install the GitLab runner on the MCS linuxmgmt machine'
+---
+Redeploy the MCS Ansible `linuxmgmt` machine
+Ansible repository
+Task
+Phil Eurs
+2022-02-18 10:00
+P2W
+P4H
+0
+In progress
+There were issues installing packages on this machine, and we need to install
+packages in order to collaborate. Furthermore, this machine is currently RHEL,
+which we don't have licenses for and have more or less agreed not to use
+outside of Azure.
+
+Finish to start 'Install the GitLab runner on the MCS linuxmgmt machine'
+---
+Install the GitLab runner on the MCS linuxmgmt machine
+Ansible repository
+Task
+Phil Eurs
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+Since only the linuxmgmt machine is in the proper subnet to touch other MCS
+network resources, it is a good candidate for placing a GitLab runner there
+---
+Set up a repository to collaborate on the GitLab runner configs for MCS team to push
+Ansible repository
+Task
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+Since Dacoda will not have direct access to the linuxmgmt machine but would
+still like to control the GitLab configuration, we will be setting up a
+repository for collaborating on the configurations, and Phil and Jim will be in
+charge of deploying new config changes and restarting services when need be
+
+Finish to start 'Install the GitLab runner on the MCS linuxmgmt machine'
+---
+Create support ticket for GitLab regarding outages on 2022-02-14
+GitLab infrastructure
+Task
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+We would like a better understanding of the second round of Gitaly issues we
+experienced on this day. We have good graphs in the documentation, and so we
+think we can clearly describe the situtation to GitLab support and get some
+feedback on what might have happened
+---
+Migrate iConfig to secure VLAN, document decision and roadmap
+<Application>
+Story
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+I need to get back up to snuff with this, but I'm pretty sure we need to
+understand what VLAN this is one, make a Security decision, document it, and
+revisit it in a quarter or two
+---
+Migrate SVT from SWE developer virtualization infrastructure to IT
+<Application>
+Story
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+Similar to what we are doing for iConfig and what we did for some of the SWE
+build machines
+
+- Migrate
+- Isolate
+- Document
+- Publish, disseminate
+- Revisit
+---
+Collaborate with build team and SW quality team on custom checkers
+<Application>
+Story
+Dacoda Strack
+2022-02-18 10:00
+P2W
+P4H
+0
+To do
+Nirav reached out and mentioned (2022-02-16) that we have some custom Klocwork
+checkers that were developed and need to be reinstalled on this new Klocwork
+machine.
+
+I would like to understand how we can collaborate, test, and confidently deploy
+via GitLab these custom checkers
+
+
+
