@@ -1,0 +1,78 @@
+-- Percentage finished
+-- Status
+-- Resolution
+
+-- Consider the interesting conversations going on about "Status categories in
+-- JIRA". In the 7.9.2 JIRA schema, this is jiradb.issuestatus (STATUSCATEGORY)
+--
+-- - [User defined status categories][jira-status-categories]
+-- - [Javadoc for status categories][jira-javadoc-status-categories]
+
+-- Inspiration from [ProjectManager][pm-key-components] and
+-- [JIRA][jira-status-priority-resolution]
+--
+-- [pm-key-components]: https://www.projectmanager.com/gantt-chart
+-- [jira-status-priority-resolution]: https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-statuses-priorities-and-resolutions/
+-- [jira-status-categories]: https://community.atlassian.com/t5/Jira-questions/How-can-I-create-a-status-category/qaq-p/764219
+-- [jira-javadoc-status-categories]: https://docs.atlassian.com/DAC/javadoc/jira/reference/com/atlassian/jira/issue/status/category/StatusCategory.html
+
+ALTER TABLE issue ADD COLUMN
+planned_start_date INTEGER NOT NULL  -- Unix time, in seconds
+	DEFAULT 1645776000;
+
+ALTER TABLE issue ADD COLUMN
+planned_duration INTEGER NOT NULL -- Duration of time, in seconds
+	DEFAULT 259200;
+
+ALTER TABLE issue ADD COLUMN
+planned_effort INTEGER NOT NULL -- Duration of time, in seconds
+	DEFAULT 28800;
+
+ALTER TABLE issue ADD COLUMN
+percentage_complete DECIMAL(3, 0) NOT NULL
+	CONSTRAINT is_a_percentage CHECK (
+		percentage_complete >= 0
+			and percentage_complete <= 100
+	)
+	DEFAULT 0;
+
+CREATE TABLE issue_status_category (
+	id INTEGER PRIMARY KEY NOT NULL,
+	name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE issue_status (
+	id INTEGER PRIMARY KEY NOT NULL,
+	name TEXT UNIQUE NOT NULL,
+	category INTEGER NOT NULL,
+	CONSTRAINT fk_status_category FOREIGN KEY (category) REFERENCES issue_status_category (id)
+);
+
+INSERT INTO issue_status_category VALUES
+	(1, "To be investigated/backburner"),
+	(2, "In progress"),
+	(3, "Finished")
+;
+
+INSERT INTO issue_status VALUES
+	(1, "To do", 1),
+	(2, "Open", 1),
+	(3, "In progress", 2),
+	(4, "Done", 3),
+	(5, "In review", 2),
+	(6, "Under review", 2),
+	(7, "Approved", 2),
+	(8, "Cancelled", 3),
+	(9, "Rejected", 3),
+	(10, "Draft", 2),
+	(11, "Published", 3),
+	(12, "Resolved", 3),
+	(13, "Closed", 3),
+	(14, "Backlog", 1)
+;
+
+ALTER TABLE issue ADD COLUMN
+status INTEGER NOT NULL
+	CONSTRAINT fk_issue_status REFERENCES issue_status (id)
+	DEFAULT 1
+	;
