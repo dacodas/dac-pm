@@ -1,1 +1,2 @@
 database.sqlite3 filter=lfs diff=sqlite3 merge=lfs -text
+jira-7-9-2-database-schema.pdf filter=lfs diff=lfs merge=lfs -text
