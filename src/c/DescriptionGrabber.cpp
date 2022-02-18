@@ -9,13 +9,13 @@ DescriptionGrabber::DescriptionGrabber(std::streambuf& source)
 	memset(buffer, 0, bufferSize);
 }
 
-void DescriptionGrabber::handleHyphen(char* hyphen)
+char *DescriptionGrabber::handleHyphen(char* hyphen)
 {
 	char *bufferEnd { buffer + bufferSize };
 
 	if ( hyphen == bufferEnd )
 
-		return;
+		return nullptr;
 
 	char *nonHyphen {
 		std::find_if_not(hyphen + 1, bufferEnd, [] (char c) { return c == '-'; })
@@ -28,7 +28,7 @@ void DescriptionGrabber::handleHyphen(char* hyphen)
 		// Set the end of the streambuf to hyphen because we will be
 		// needing to return EOF after that
 		std::cerr << "We found the proper number of hyphens!\n";
-		finished = true;
+		return nonHyphen;
 	}
 	else if ( nonHyphen != bufferEnd )
 	{
@@ -36,6 +36,7 @@ void DescriptionGrabber::handleHyphen(char* hyphen)
 		// will start our count anew
 		std::cerr << "We didn't find enough hyphens there, so we are restarting the count\n";
 		currentHyphenCount = 0;
+		return nullptr;
 	}
 	else
 	{
@@ -49,11 +50,11 @@ void DescriptionGrabber::handleHyphen(char* hyphen)
 void DescriptionGrabber::grab(std::string& target)
 {
 	auto eof {std::char_traits<char>::eof()};
-	char *bufferEnd { buffer + bufferSize };
 
 	while ( !finished )
 	{
 		std::streamsize charsRead { source.sgetn(buffer, bufferSize) };
+		char *bufferEnd { buffer + charsRead };
 
 		if ( charsRead == eof )
 		{
@@ -65,7 +66,21 @@ void DescriptionGrabber::grab(std::string& target)
 			buffer, bufferEnd, '-'
 		) };
 
-		handleHyphen(hyphen);
+		char *endOfHyphens {handleHyphen(hyphen)};
+
+		if ( endOfHyphens != nullptr )
+		{
+			while ( endOfHyphens++ != bufferEnd )
+			{
+				if ( source.sungetc() == eof )
+				{
+					std::cerr << "Failed putting back post hyphen chars to streambuf!\n";
+					exit(1);
+				}
+
+				--charsRead;
+			}
+		}
 
 		auto currentSize {target.size()};
 		target.resize(target.size() + charsRead);

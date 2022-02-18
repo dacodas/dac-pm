@@ -15,6 +15,6 @@ public:
 	void grab(std::string&);
 
 private:
-	void handleHyphen(char* hyphen);
+	char *handleHyphen(char* hyphen);
 };
 
