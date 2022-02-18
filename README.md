@@ -1,3 +1,9 @@
+- Need to add an "application" for... hmm... something like "Operations" or
+  more general improvements
+
+- How about issues that touch multiple applications?
+  - Primary application and allow for secondaries in another table?
+  - Generate all combinations? 🤣
 - Consider date and duration pickers and how to represent them in the buffer
   - Consider ISO 8601 duration standard
   - Also consider [this excellent library][howard-date]
@@ -6,6 +12,37 @@
   - If percentage is 100%, then we need to be in one of the "Finished" status
     categories
   - Make sure "time actually completed" is properly set if percentage is 100%
+  - If there is a Gantt like or parent-child relation between two issues, we
+    can constrain the proper values for the start, end, duration, and effort
+    values
+  - Some issue types might even have these values entirely computed from their
+    children
+  - Same thing for percentages, some percentages should be computed from their
+    children, and I am unsure how to calculate this
+- Have a date for when the ticket is actually created
+- What to do about this interactive case where I am adding a lot of tasks?
+  - For example, I want to have relationships between tasks
+    1. What format should it be in the user interface when specifying these
+       tasks?
+    2. How can I create links between issues that are in this same batch and
+       haven't been added yet?
+       - Consider having a temporary holding table for the current batch, where
+	 links can be established...
+	 - IDs would change as we went along, so I'm not sure how this would
+	   work...
+	 - We could still have a temporary table, and rely on linking via
+	   regexes that uniquely identify the summary of each issue... I think
+	   something like this is the most straightforward way for now
+	 - On second thought, I think it is reasonable to have the verbatim
+	   summary in the batch relation
+    3. One thing is determining how to establish the database link between the
+       two. Another is how to allow referencing others in the batch in the
+       description of the issue.
+
+       Lately I have been partial to Markdown's "reference-like" link syntax. I
+       wonder if relations can be specified at the end in a reference-like
+       syntax, and referred to in the descriptions to be modified before
+       insertion into the database.
 
 [howard-date]: https://github.com/HowardHinnant/date
 [howard-date-durations]: https://howardhinnant.github.io/date/date.html#duration_io
