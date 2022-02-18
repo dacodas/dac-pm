@@ -3,39 +3,62 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+const char *statementBuffer = 
+"INSERT INTO issue ( summary, application, type, assignee, description )\n"
+"SELECT input.summary, application.id, type.id, assignee.id, input.description\n"
+"FROM\n"
+"	(\n"
+"		SELECT\n"
+"			? AS summary,\n"
+"			? AS application,\n"
+"			? AS type,\n"
+"			? AS assignee,\n"
+"			? AS description\n"
+"	) AS input\n"
+"INNER JOIN application AS application ON application.application = input.application\n"
+"INNER JOIN issue_type AS type ON type.type = input.type\n"
+"INNER JOIN person AS assignee ON assignee.name = input.assignee\n"
+";\n"
+;
+
 int main(int argc, char* argv[])
 {
 	sqlite3* db;
 	sqlite3_stmt* statement;
 
-	char statementBuffer[256];
-	const char* table = argv[1];
-	snprintf(statementBuffer, 256, "INSERT INTO confluence_%s (%s) VALUES (?);", table, table);
-
-	sqlite3_open("test.db", &db);
-
-	sqlite3_prepare_v3(db, statementBuffer, 256, 0, &statement, NULL);
-
-	for ( size_t index = 2; index < argc ; ++index )
+	if ( argc != 6 )
 	{
-		sqlite3_bind_text(statement, 1, argv[index], -1, SQLITE_STATIC);
-		int result = sqlite3_step(statement);
-		switch ( result )
+		fprintf(stderr, "Something is clearly wrong, you need to specify 5 arguments\n");
+		fprintf(stderr, "The SQL command is as follows:\n\n");
+		fprintf(stderr, "%s", statementBuffer);
+		exit(1);
+	}
+
+	sqlite3_open("database.sqlite3", &db);
+
+	sqlite3_prepare_v3(db, statementBuffer, 2048, 0, &statement, NULL);
+
+	for ( size_t index = 1; index < argc ; ++index )
+	{
+		sqlite3_bind_text(statement, index, argv[index], -1, SQLITE_STATIC);
+	}
+
+	int result = sqlite3_step(statement);
+	switch ( result )
+	{
+		case SQLITE_DONE:
 		{
-			case SQLITE_DONE:
-			{
-				sqlite3_reset(statement);
-				sqlite3_clear_bindings(statement);
-				break;
-			}
-			case SQLITE_BUSY:
-			case SQLITE_MISUSE:
-			case SQLITE_ERROR:
-			default:
-			{
-				fprintf(stderr, "%s\n", sqlite3_errmsg(db));
-				exit(1);
-			}
+			sqlite3_reset(statement);
+			sqlite3_clear_bindings(statement);
+			break;
+		}
+		case SQLITE_BUSY:
+		case SQLITE_MISUSE:
+		case SQLITE_ERROR:
+		default:
+		{
+			fprintf(stderr, "%s\n", sqlite3_errmsg(db));
+			exit(1);
 		}
 	}
 
