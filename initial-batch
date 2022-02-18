@@ -47,7 +47,7 @@ Story
 Dacoda Strack
 2022-02-18 10:00
 P2W
-08:00
+P8H
 0
 Open
 Elton seems to be struggling with keeping up to date with this Jenkins build
@@ -71,7 +71,7 @@ New feature
 Dacoda Strack
 2022-02-18 10:00
 P1W
-04:00
+P4H
 10
 In progress
 There are some decisions that we need to communicate with other departments on
@@ -91,7 +91,7 @@ Bug
 Dacoda Strack
 2022-02-18 10:00
 P1W
-04:00
+P4H
 0
 Open
 TeamForge had two issues with disk space running low and alerts not making it
@@ -105,7 +105,7 @@ Task
 Dacoda Strack
 2022-02-18 10:00
 P2W
-04:00
+P4H
 0
 To do
 Dacoda has learned that Solarwinds monitoring has to be configured on a
@@ -122,7 +122,7 @@ Task
 Dacoda Strack
 2022-02-18 10:00
 P1W
-02:00
+P2H
 0
 To do
 While discussing the lack of alerts for TeamForge, we considered that perhaps
