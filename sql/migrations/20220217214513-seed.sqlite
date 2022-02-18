@@ -1,0 +1,21 @@
+CREATE VIEW simple_issue_view AS
+SELECT
+	issue.id,
+	type.type,
+	application.application,
+	assignee.name AS assignee,
+	strftime('%Y-%m-%d', issue.planned_start_date, 'unixepoch')
+		AS planned_start_date,
+	planned_duration / ( 24 * 3600 )
+		AS planned_duration,
+	( planned_effort / 3600 )
+		AS planned_effort,
+	percentage_complete,
+	status.name AS status,
+	category.name AS category
+FROM issue
+INNER JOIN application ON application.id = issue.application
+INNER JOIN issue_type AS type ON type.id = issue.type
+INNER JOIN person AS assignee ON assignee.id = issue.assignee
+INNER JOIN issue_status AS status ON status.id = issue.status
+INNER JOIN issue_status_category AS category ON category.id = status.category;
