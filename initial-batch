@@ -66,7 +66,7 @@ a better experience to the build team. Let's start asking around
 > experience to make things easier on the organization
 ---
 Collaborate with David's team on a place for official IT documents for other departments
-<Application>
+Operations
 New feature
 Dacoda Strack
 2022-02-18 10:00
@@ -86,7 +86,7 @@ Two other projects in a similar boat are the iConfig machines and the SVT
 machines.
 ---
 Confirm that alerts for Azure Linux machines are reaching PagerDuty and KONOS
-<Application>
+Operations
 Bug
 Dacoda Strack
 2022-02-18 10:00
@@ -138,7 +138,7 @@ we have attached to the machine.
 Relates 'Confirm that alerts for Azure Linux machines are reaching PagerDuty and KONOS'
 ---
 SolarWinds for AWS
-<Application>
+Operations
 Epic
 Dacoda Strack
 2022-02-18 10:00
@@ -167,7 +167,7 @@ with GitLab and not being woken up with errors
 Finish to start 'Determine if CPC can leverage SolarWinds for AWS along with PagerDuty'
 ---
 Determine if CPC can leverage SolarWinds for AWS along with PagerDuty
-<Application>
+Operations
 Story
 Dacoda Strack
 2022-02-18 10:00
@@ -181,7 +181,7 @@ CPC is interested in going halfsies on PagerDuty and Solarwinds for AWS
 Finish to start 'Build cross-account deployments of any SolarWinds infrastructure needed'
 ---
 Build cross-account deployments of any SolarWinds infrastructure needed
-<Application>
+Operations
 Task
 Dacoda Strack
 2022-03-15 10:00
@@ -267,7 +267,7 @@ think we can clearly describe the situtation to GitLab support and get some
 feedback on what might have happened
 ---
 Migrate iConfig to secure VLAN, document decision and roadmap
-<Application>
+iConfig
 Story
 Dacoda Strack
 2022-02-18 10:00
@@ -280,7 +280,7 @@ understand what VLAN this is one, make a Security decision, document it, and
 revisit it in a quarter or two
 ---
 Migrate SVT from SWE developer virtualization infrastructure to IT
-<Application>
+SVT
 Story
 Dacoda Strack
 2022-02-18 10:00
@@ -298,7 +298,7 @@ build machines
 - Revisit
 ---
 Collaborate with build team and SW quality team on custom checkers
-<Application>
+Klocwork
 Story
 Dacoda Strack
 2022-02-18 10:00
@@ -312,6 +312,3 @@ machine.
 
 I would like to understand how we can collaborate, test, and confidently deploy
 via GitLab these custom checkers
-
-
-

@@ -1,0 +1,6 @@
+INSERT INTO application VALUES
+	(14, "Operations"),
+	(15, "iConfig"),
+	(16, "SVT"),
+	(17, "Klocwork")
+;
