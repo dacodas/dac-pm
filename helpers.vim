@@ -1,5 +1,7 @@
 function! Put_argument(template)
-	put =a:template
+	execute 'normal 0d$'
+	let @r=a:template
+	execute 'normal "rp'
 endfunction
 
 function! Simple_query(column, table)
@@ -15,4 +17,4 @@ endfunction
 :command Person call Simple_query('name', 'person')
 :command Relation call Simple_query('relation', 'issue_relation')
 :command Ticket call Simple_query('summary', 'issue')
-
+:command Status call Simple_query('name', 'issue_status')
