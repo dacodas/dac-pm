@@ -1,1 +1,1 @@
-database.sqlite3 filter=lfs diff=lfs merge=lfs -text
+database.sqlite3 filter=lfs diff=sqlite3 merge=lfs -text
