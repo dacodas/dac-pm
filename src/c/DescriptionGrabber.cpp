@@ -1,13 +1,13 @@
 #include "DescriptionGrabber.h"
+#include "StdinWithUngetStreambuf.h"
 
 #include <cstring>
 #include <algorithm>
 
-DescriptionGrabber::DescriptionGrabber(std::streambuf& source)
-	: source(source)
-{
-	memset(buffer, 0, bufferSize);
-}
+namespace DacPM::VimParsing {
+
+DescriptionGrabber::DescriptionGrabber(StdinWithUngetStreambuf& streambuf, char* buffer)
+	: source {streambuf}, buffer {buffer} {}
 
 char *DescriptionGrabber::handleHyphen(char* hyphen)
 {
@@ -86,4 +86,5 @@ void DescriptionGrabber::grab(std::string& target)
 		target.resize(target.size() + charsRead);
 		std::memcpy(target.data() + currentSize, buffer, charsRead);
 	}
+}
 }

@@ -1,23 +1,27 @@
 #include "TicketFromVim.h"
+#include "StdinWithUngetStreambuf.h"
 #include "DescriptionGrabber.h"
 
 TicketFromVim::TicketFromVim(std::istream& istream)
 	: fields(FieldsCount)
 {
+	DacPM::VimParsing::StdinWithUngetStreambuf streambuf {istream};
+	std::istream bufferedIstream {&streambuf};
+
 	size_t index {0};
 
 	for ( ; index < FieldsCount - 1 ; ++index )
 	{
-		std::getline(istream, fields[index]);
+		std::getline(bufferedIstream, fields[index]);
 
-		if ( istream.fail() )
+		if ( bufferedIstream.fail() )
 		{
 			std::cerr << "Failed to read field " << FieldNames[index] << "\n";
 			exit(1);
 		}
 	}
 
-	DescriptionGrabber grabber {*std::cin.rdbuf()};
+	DacPM::VimParsing::DescriptionGrabber grabber {streambuf, exposeBuffer(streambuf)};
 	grabber.grab(fields[index]);
 }
 

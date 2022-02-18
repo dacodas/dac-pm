@@ -1,20 +1,28 @@
+#pragma once
+
 #include <iostream>
 
+#include "VimParsingConstants.h"
+
+namespace DacPM::VimParsing {
+
+class StdinWithUngetStreambuf;
+
+// This buffer is shared with the streambuf buffering stdin
 class DescriptionGrabber
 {
-	static constexpr std::size_t bufferSize {10 * 1024};
 	static constexpr std::size_t targetHyphens {3};
 
-	std::streambuf& source;
-	char buffer[bufferSize];
+	StdinWithUngetStreambuf& source;
+	char *buffer;
 	size_t currentHyphenCount {0};
 	bool finished {false};
 
 public:
-	DescriptionGrabber(std::streambuf&);
+	DescriptionGrabber(StdinWithUngetStreambuf&, char *);
 	void grab(std::string&);
 
 private:
 	char *handleHyphen(char* hyphen);
 };
-
+}
