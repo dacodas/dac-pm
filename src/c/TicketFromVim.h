@@ -3,6 +3,10 @@
 #include <iostream>
 #include <vector>
 
+namespace DacPM::VimParsing {
+	class StdinWithUngetStreambuf;
+}
+
 class TicketFromVim {
 public:
 	enum class Fields {
@@ -36,12 +40,16 @@ public:
 		"description"
 	};
 
-	TicketFromVim(std::istream& istream);
+	TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::StdinWithUngetStreambuf& streambuf);
+	operator bool() const;
 
 	friend std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket);
 
 private:
 	std::vector<std::string> fields;
+	bool ok {false};
 };
 
 std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket);
+
+std::vector<TicketFromVim> readTickets(std::istream& istream);

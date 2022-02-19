@@ -2,9 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-	TicketFromVim ticket(std::cin);
-
-	std::cout << ticket << "\n";
+	std::vector<TicketFromVim> tickets { readTickets(std::cin) }; 
 
 	return 0;
 }

@@ -2,12 +2,37 @@
 #include "StdinWithUngetStreambuf.h"
 #include "DescriptionGrabber.h"
 
-TicketFromVim::TicketFromVim(std::istream& istream)
-	: fields(FieldsCount)
+std::vector<TicketFromVim> readTickets(std::istream& istream) 
 {
 	DacPM::VimParsing::StdinWithUngetStreambuf streambuf {istream};
 	std::istream bufferedIstream {&streambuf};
 
+	std::vector<TicketFromVim> tickets {};
+
+	for (;;)
+	{
+		DacPM::VimParsing::BufferedSentry sentry(streambuf);
+
+		TicketFromVim ticket {bufferedIstream, streambuf};
+
+		if ( !ticket )
+		{
+			break;
+		}
+
+		tickets.emplace_back(std::move(ticket));
+	}
+
+	for ( auto& ticket : tickets )
+
+		std::cout << ticket;
+
+	return tickets;
+}
+
+TicketFromVim::TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::StdinWithUngetStreambuf& streambuf)
+	: fields(FieldsCount) 
+{
 	size_t index {0};
 
 	for ( ; index < FieldsCount - 1 ; ++index )
@@ -17,12 +42,19 @@ TicketFromVim::TicketFromVim(std::istream& istream)
 		if ( bufferedIstream.fail() )
 		{
 			std::cerr << "Failed to read field " << FieldNames[index] << "\n";
-			exit(1);
+			return;
 		}
 	}
 
-	DacPM::VimParsing::DescriptionGrabber grabber {streambuf, exposeBuffer(streambuf)};
+	DacPM::VimParsing::DescriptionGrabber grabber {streambuf};
 	grabber.grab(fields[index]);
+
+	ok = true;
+}
+
+TicketFromVim::operator bool() const
+{
+	return ok;
 }
 
 std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket)

@@ -1,15 +1,12 @@
 #include "StdinWithUngetStreambuf.h"
 
 #include <cstring>
+#include <algorithm>
 
 namespace DacPM::VimParsing {
 
 using int_type = StdinWithUngetStreambuf::int_type;
-
-char *exposeBuffer(StdinWithUngetStreambuf& streambuf)
-{
-	return streambuf.buffer;
-}
+using char_type = StdinWithUngetStreambuf::char_type;
 
 void StdinWithUngetStreambuf::checkIfEnd(std::streamsize read, std::streamsize desired) 
 {
@@ -35,6 +32,11 @@ int_type StdinWithUngetStreambuf::underflow()
 {
 	ensureGetAreaEndWithBuffer();
 
+	if ( atEnd )
+	{
+		return std::char_traits<char>::eof();
+	}
+
 	if ( gptr() == egptr() )
 	{
 		std::streamsize readChars {source.rdbuf()->sgetn(buffer, bufferSize)};
@@ -49,20 +51,27 @@ int_type StdinWithUngetStreambuf::underflow()
 	}
 }
 
-std::streamsize StdinWithUngetStreambuf::xsgetn(char_type *buffer, std::streamsize count)
+std::streamsize StdinWithUngetStreambuf::xsgetn(char_type *nonceBuffer, std::streamsize count)
 {
+	if ( nonceBuffer != nullptr )
+	{
+		std::cerr << "Then pay with your blood!\n";
+		std::cerr << "This class is meant specifically for use with the DescriptionGrabber, and you are using it wrong\n";
+		exit(1);
+	}
+
 	if ( count > bufferSize )
 	{
-		// Fail if we requrestest more than we can store in our buffer
 		std::cerr << "We tried to grab more than our buffered input could handle\n";
 		exit(1);
 	}
 
-	if ( count < ( egptr() - gptr() ) )
-	{
-		
-	}
+	underflow();
 
+	if ( atEnd )
+	{
+		return egptr() - gptr();
+	}
 	else 
 	{
 		// Move unread stuff to the beginning of the buffer, and then read as
@@ -93,4 +102,43 @@ StdinWithUngetStreambuf::StdinWithUngetStreambuf(std::istream& source)
 
 	setg(buffer, buffer, buffer + readSize);
 }
+
+char_type* StdinWithUngetStreambuf::eback() const { return std::streambuf::eback(); }
+char_type* StdinWithUngetStreambuf::gptr() const { return std::streambuf::gptr(); }
+char_type* StdinWithUngetStreambuf::egptr() const { return std::streambuf::egptr(); }
+
+int_type StdinWithUngetStreambuf::sungetc() { 
+	std::cerr << "sungetc\n";
+
+	if ( gptr() > eback() )
+	{
+		--_M_in_cur;
+		return std::char_traits<char>::to_int_type(*gptr());
+	}
+	else
+		return std::char_traits<char>::eof();
 }
+
+void StdinWithUngetStreambuf::advanceTo(char *newGptr) { 
+	if ( newGptr > egptr() or newGptr < eback() )
+	{
+		std::cerr << "You have asked me to advance somewhere nulle!\n";
+		exit(1);
+	}
+
+	_M_in_cur = newGptr;
+}
+
+BufferedSentry::BufferedSentry(StdinWithUngetStreambuf& streambuf)
+{
+	char* nonWhitespace {std::find_if_not(
+		streambuf.gptr(),
+		streambuf.egptr(),
+		[] (char c) { return std::isspace(c); }
+	)};
+
+	streambuf.advanceTo(nonWhitespace);
+}
+
+}
+

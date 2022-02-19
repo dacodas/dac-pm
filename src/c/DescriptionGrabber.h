@@ -14,15 +14,30 @@ class DescriptionGrabber
 	static constexpr std::size_t targetHyphens {3};
 
 	StdinWithUngetStreambuf& source;
-	char *buffer;
 	size_t currentHyphenCount {0};
 	bool finished {false};
 
 public:
-	DescriptionGrabber(StdinWithUngetStreambuf&, char *);
+	DescriptionGrabber(StdinWithUngetStreambuf&);
 	void grab(std::string&);
 
 private:
-	char *handleHyphen(char* hyphen);
+	// There are a few scenarios here:
+	//
+	// 1. We have found the end
+	// 2. We have been reset and need to go again
+	// 3. We are at the end of the buffer and need to go again
+	enum class HyphenStatus {
+		Success,
+		FalseAlarm,
+		EndOfBuffer
+	};
+
+	struct HyphenReturn {
+		HyphenStatus status;
+		char *location;
+	};
+
+	HyphenReturn handleHyphen(char* hyphen);
 };
 }

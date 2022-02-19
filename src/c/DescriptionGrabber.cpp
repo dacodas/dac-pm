@@ -6,19 +6,17 @@
 
 namespace DacPM::VimParsing {
 
-DescriptionGrabber::DescriptionGrabber(StdinWithUngetStreambuf& streambuf, char* buffer)
-	: source {streambuf}, buffer {buffer} {}
+DescriptionGrabber::DescriptionGrabber(StdinWithUngetStreambuf& streambuf)
+	: source {streambuf} {}
 
-char *DescriptionGrabber::handleHyphen(char* hyphen)
+DescriptionGrabber::HyphenReturn DescriptionGrabber::handleHyphen(char* hyphen)
 {
-	char *bufferEnd { buffer + bufferSize };
+	if ( hyphen == source.egptr() )
 
-	if ( hyphen == bufferEnd )
-
-		return nullptr;
+		return {HyphenStatus::EndOfBuffer, nullptr};
 
 	char *nonHyphen {
-		std::find_if_not(hyphen + 1, bufferEnd, [] (char c) { return c == '-'; })
+		std::find_if_not(hyphen + 1, source.egptr(), [] (char c) { return c == '-'; })
 	};
 
 	std::size_t additionalHyphens { nonHyphen - hyphen };
@@ -28,15 +26,16 @@ char *DescriptionGrabber::handleHyphen(char* hyphen)
 		// Set the end of the streambuf to hyphen because we will be
 		// needing to return EOF after that
 		std::cerr << "We found the proper number of hyphens!\n";
-		return nonHyphen;
+		finished = true;
+		return {HyphenStatus::Success, nonHyphen};
 	}
-	else if ( nonHyphen != bufferEnd )
+	else if ( nonHyphen != source.egptr() )
 	{
 		// We have come across a series of insufficient hyphens, so we
 		// will start our count anew
 		std::cerr << "We didn't find enough hyphens there, so we are restarting the count\n";
 		currentHyphenCount = 0;
-		return nullptr;
+		return {HyphenStatus::FalseAlarm, nonHyphen};
 	}
 	else
 	{
@@ -53,38 +52,44 @@ void DescriptionGrabber::grab(std::string& target)
 
 	while ( !finished )
 	{
-		std::streamsize charsRead { source.sgetn(buffer, bufferSize) };
-		char *bufferEnd { buffer + charsRead };
+		std::streamsize charsToRead { source.sgetn(nullptr, bufferSize) };
 
-		if ( charsRead == eof )
+		if ( charsToRead == eof )
 		{
 			std::cerr << "We reached the end of file looking for the end of the description section!\n";
 			exit(1);
 		}
 
 		char *hyphen { std::find(
-			buffer, bufferEnd, '-'
+			source.gptr(), source.egptr(), '-'
 		) };
 
-		char *endOfHyphens {handleHyphen(hyphen)};
+		auto [status, endOfHyphens] = handleHyphen(hyphen);
+		auto currentSize {target.size()};
 
-		if ( endOfHyphens != nullptr )
+		char *copyEnd;
+
+		using enum HyphenStatus;
+
+		switch (status)
 		{
-			while ( endOfHyphens++ != bufferEnd )
-			{
-				if ( source.sungetc() == eof )
-				{
-					std::cerr << "Failed putting back post hyphen chars to streambuf!\n";
-					exit(1);
-				}
-
-				--charsRead;
-			}
+		case Success:
+		case FalseAlarm:
+		{
+			copyEnd = endOfHyphens;
+			break;
+		}
+		case EndOfBuffer:
+		{
+			copyEnd = source.egptr();
+			break;
+		}
 		}
 
-		auto currentSize {target.size()};
-		target.resize(target.size() + charsRead);
-		std::memcpy(target.data() + currentSize, buffer, charsRead);
+		std::streamsize sizeToCopy { hyphen - source.gptr() };
+		target.resize(currentSize + sizeToCopy);
+		std::memcpy(target.data() + currentSize, source.gptr(), sizeToCopy);
+		source.advanceTo( copyEnd );
 	}
 }
 }

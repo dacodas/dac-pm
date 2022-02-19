@@ -18,8 +18,6 @@ private:
 	void ensureGetAreaEndWithBuffer();
 	void checkIfEnd(std::streamsize, std::streamsize);
 
-	friend char *exposeBuffer(StdinWithUngetStreambuf&);
-
 protected:
 	int_type underflow();
 	std::streamsize xsgetn(char_type *, std::streamsize);
@@ -28,8 +26,18 @@ protected:
 public:
 
 	StdinWithUngetStreambuf(std::istream&);
+
+	char_type* eback() const;
+	char_type* gptr() const;
+	char_type* egptr() const;
+
+	int_type sungetc();
+	void advanceTo(char *);
 };
 
-char *exposeBuffer(StdinWithUngetStreambuf&);
+class BufferedSentry {
+public:
+	BufferedSentry(StdinWithUngetStreambuf& streambuf);
+};
 
 }
