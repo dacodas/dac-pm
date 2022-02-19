@@ -1,5 +1,4 @@
-- Need to add an "application" for... hmm... something like "Operations" or
-  more general improvements
+# Overview
 
 - How about issues that touch multiple applications?
   - Primary application and allow for secondaries in another table?
@@ -43,6 +42,30 @@
        wonder if relations can be specified at the end in a reference-like
        syntax, and referred to in the descriptions to be modified before
        insertion into the database.
+
+## Parsing the description with iostreams
+
+- We need different adapters for the different parts of the syntax
+  - Description which looks out for hyphens
+  - Potentially something for relations/links
+  - Single line for everything else
+- The streambufs can share the same buffer, but how do we switch back and
+  forth?
+  - Or do we make a god object?
+- I want to pivot with how I am conceptualizing this. I think we can... I think
+  the idea of sending back EOFs is causing a bit of trouble and havoc
+  - Instead, let's... well, let's just skip over those bits by setting the
+    current char and go from there. I think that will get us pretty good...
+  - Alright, we will simply try to understand the mental model of
+    `std::streambuf` and implement the virtual methods faithfully
+
+- Okay, we're very close to being finished here...
+  - I need to be able to push back chars...
+    - This suggests that I will have to wrap cin before even having VimTicket
+      start grabbing things
+
+- I can't help but feel that these streambuf buffers can be shared
+
 
 [howard-date]: https://github.com/HowardHinnant/date
 [howard-date-durations]: https://howardhinnant.github.io/date/date.html#duration_io
