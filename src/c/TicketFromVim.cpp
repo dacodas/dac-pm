@@ -57,6 +57,11 @@ TicketFromVim::operator bool() const
 	return ok;
 }
 
+const std::vector<std::string>& TicketFromVim::asFields() const 
+{
+	return fields;
+}
+
 std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket)
 {
 	for ( size_t index {0} ; index < TicketFromVim::FieldsCount ; ++index )

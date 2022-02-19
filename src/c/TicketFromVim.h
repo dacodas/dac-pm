@@ -44,6 +44,7 @@ public:
 	operator bool() const;
 
 	friend std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket);
+	const std::vector<std::string>& asFields() const;
 
 private:
 	std::vector<std::string> fields;
