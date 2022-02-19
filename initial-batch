@@ -40,7 +40,6 @@ P4H
 <Description>
 ```
 
----
 Consider taking over Elton's Windows Jenkins build machine
 SWE build machines
 Story
@@ -312,3 +311,4 @@ machine.
 
 I would like to understand how we can collaborate, test, and confidently deploy
 via GitLab these custom checkers
+---
