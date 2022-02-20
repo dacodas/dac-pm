@@ -66,6 +66,51 @@
 
 - I can't help but feel that these streambuf buffers can be shared
 
+# Notes regarding the editing experience
+
+```
++-----+---------------------+---------------+---------+------------+----+
+| cid |        name         |     type      | notnull | dflt_value | pk |
++-----+---------------------+---------------+---------+------------+----+
+| 0   | id                  | INTEGER       | 0       |            | 1  |
+| 1   | type                | INTEGER       | 0       |            | 0  |
+| 2   | application         | INTEGER       | 0       |            | 0  |
+| 3   | assignee            | INTEGER       | 0       |            | 0  |
+| 4   | summary             | TEXT          | 0       |            | 0  |
+| 5   | description         | TEXT          | 0       |            | 0  |
+| 6   | planned_start_date  | INTEGER       | 1       | 1645776000 | 0  |
+| 7   | planned_duration    | INTEGER       | 1       | 259200     | 0  |
+| 8   | planned_effort      | INTEGER       | 1       | 28800      | 0  |
+| 9   | percentage_complete | DECIMAL(3, 0) | 1       | 0          | 0  |
+| 10  | status              | INTEGER       | 1       | 1          | 0  |
++-----+---------------------+---------------+---------+------------+----+
+
+summary
+application
+type
+assignee
+planned_start_date
+planned_duration
+planned_effort
+percentage_complete
+status
+description
+```
+
+What ought the template look like?
+
+```
+<Summary>
+<Application>
+<Type>
+Dacoda Strack
+echo $( date -d Tomorrow '+%Y-%m-%d 10:00' )
+P2W
+P4H
+0
+<Status>
+<Description>
+```
 
 [howard-date]: https://github.com/HowardHinnant/date
 [howard-date-durations]: https://howardhinnant.github.io/date/date.html#duration_io
