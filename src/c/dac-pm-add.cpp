@@ -120,6 +120,9 @@ int bind(sqlite3_stmt *statement, const std::vector<std::string>& fields, std::v
 
 }
 
+// Another option to explore here to do these all in a single statement is to
+// generate a proper string of `(?, ?, ?, ?, ?)` and pass them as VALUES. The
+// main thing to worry about would be the column names.
 const char *statementBuffer = R"sql(
 
 INSERT INTO issue (
@@ -177,6 +180,8 @@ void commitBatchOfTickets(std::vector<TicketFromVim>& tickets)
 
 	sqlite3_prepare_v3(db, statementBuffer, 2048, 0, &statement, NULL);
 
+	sqlite3_exec(db, "BEGIN", 0, 0, 0);
+
 	for ( auto& ticket : tickets )
 	{
 		int bind_result = DacPM::Wranglers::bind(statement, ticket.asFields(), DacPM::Wranglers::wranglers);
@@ -213,6 +218,8 @@ void commitBatchOfTickets(std::vector<TicketFromVim>& tickets)
 	}
 
 	sqlite3_finalize(statement);
+
+	sqlite3_exec(db, "END", 0, 0, 0);
 
 	sqlite3_close(db);
 }
