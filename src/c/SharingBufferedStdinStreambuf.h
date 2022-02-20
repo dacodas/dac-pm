@@ -9,7 +9,7 @@
 // next however many characters ready
 namespace DacPM::VimParsing {
 
-class StdinWithUngetStreambuf : public std::streambuf {
+class SharingBufferedStdinStreambuf : public std::streambuf {
 private:
 	std::istream& source;
 	char buffer[bufferSize];
@@ -25,7 +25,7 @@ protected:
 	
 public:
 
-	StdinWithUngetStreambuf(std::istream&);
+	SharingBufferedStdinStreambuf(std::istream&);
 
 	char_type* eback() const;
 	char_type* gptr() const;
@@ -36,7 +36,7 @@ public:
 
 class BufferedSentry {
 public:
-	BufferedSentry(StdinWithUngetStreambuf& streambuf);
+	BufferedSentry(SharingBufferedStdinStreambuf& streambuf);
 };
 
 }

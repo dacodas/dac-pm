@@ -1,14 +1,14 @@
-#include "StdinWithUngetStreambuf.h"
+#include "SharingBufferedStdinStreambuf.h"
 
 #include <cstring>
 #include <algorithm>
 
 namespace DacPM::VimParsing {
 
-using int_type = StdinWithUngetStreambuf::int_type;
-using char_type = StdinWithUngetStreambuf::char_type;
+using int_type = SharingBufferedStdinStreambuf::int_type;
+using char_type = SharingBufferedStdinStreambuf::char_type;
 
-BufferedSentry::BufferedSentry(StdinWithUngetStreambuf& streambuf)
+BufferedSentry::BufferedSentry(SharingBufferedStdinStreambuf& streambuf)
 {
 	char* nonWhitespace {std::find_if_not(
 		streambuf.gptr(),
@@ -19,7 +19,7 @@ BufferedSentry::BufferedSentry(StdinWithUngetStreambuf& streambuf)
 	streambuf.advanceTo(nonWhitespace);
 }
 
-StdinWithUngetStreambuf::StdinWithUngetStreambuf(std::istream& source)
+SharingBufferedStdinStreambuf::SharingBufferedStdinStreambuf(std::istream& source)
 	: source {source}
 {
 	std::streamsize readSize {source.rdbuf()->sgetn(buffer, bufferSize)};
@@ -29,11 +29,11 @@ StdinWithUngetStreambuf::StdinWithUngetStreambuf(std::istream& source)
 	setg(buffer, buffer, buffer + readSize);
 }
 
-char_type* StdinWithUngetStreambuf::eback() const { return std::streambuf::eback(); }
-char_type* StdinWithUngetStreambuf::gptr() const { return std::streambuf::gptr(); }
-char_type* StdinWithUngetStreambuf::egptr() const { return std::streambuf::egptr(); }
+char_type* SharingBufferedStdinStreambuf::eback() const { return std::streambuf::eback(); }
+char_type* SharingBufferedStdinStreambuf::gptr() const { return std::streambuf::gptr(); }
+char_type* SharingBufferedStdinStreambuf::egptr() const { return std::streambuf::egptr(); }
 
-void StdinWithUngetStreambuf::advanceTo(char *newGptr) {
+void SharingBufferedStdinStreambuf::advanceTo(char *newGptr) {
 	if ( newGptr > egptr() or newGptr < eback() )
 	{
 		std::cerr << "You have asked me to advance somewhere nulle!\n";
@@ -43,7 +43,7 @@ void StdinWithUngetStreambuf::advanceTo(char *newGptr) {
 	_M_in_cur = newGptr;
 }
 
-void StdinWithUngetStreambuf::checkIfExhaustedUnderlyingBuffer(std::streamsize read, std::streamsize desired) 
+void SharingBufferedStdinStreambuf::checkIfExhaustedUnderlyingBuffer(std::streamsize read, std::streamsize desired) 
 {
 	if ( read < desired )
 	{
@@ -51,7 +51,7 @@ void StdinWithUngetStreambuf::checkIfExhaustedUnderlyingBuffer(std::streamsize r
 	}
 }
 
-void StdinWithUngetStreambuf::ensureGetAreaEndWithBuffer() 
+void SharingBufferedStdinStreambuf::ensureGetAreaEndWithBuffer() 
 {
 	if ( atEnd )
 		return;
@@ -63,7 +63,7 @@ void StdinWithUngetStreambuf::ensureGetAreaEndWithBuffer()
 	}
 }
 
-int_type StdinWithUngetStreambuf::underflow()
+int_type SharingBufferedStdinStreambuf::underflow()
 {
 	auto eof {std::char_traits<char>::eof()};
 
@@ -88,7 +88,7 @@ int_type StdinWithUngetStreambuf::underflow()
 	}
 }
 
-std::streamsize StdinWithUngetStreambuf::xsgetn(char_type *nonceBuffer, std::streamsize count)
+std::streamsize SharingBufferedStdinStreambuf::xsgetn(char_type *nonceBuffer, std::streamsize count)
 {
 	if ( nonceBuffer != nullptr )
 	{

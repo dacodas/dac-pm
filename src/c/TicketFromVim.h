@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace DacPM::VimParsing {
-	class StdinWithUngetStreambuf;
+	class SharingBufferedStdinStreambuf;
 }
 
 class TicketFromVim {
@@ -40,7 +40,7 @@ public:
 		"description"
 	};
 
-	TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::StdinWithUngetStreambuf& streambuf);
+	TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::SharingBufferedStdinStreambuf& streambuf);
 	operator bool() const;
 
 	friend std::ostream& operator<<(std::ostream& output, const TicketFromVim& ticket);

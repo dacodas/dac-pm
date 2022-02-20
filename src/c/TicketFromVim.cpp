@@ -1,10 +1,10 @@
 #include "TicketFromVim.h"
-#include "StdinWithUngetStreambuf.h"
+#include "SharingBufferedStdinStreambuf.h"
 #include "DescriptionGrabber.h"
 
 std::vector<TicketFromVim> readTickets(std::istream& istream) 
 {
-	DacPM::VimParsing::StdinWithUngetStreambuf streambuf {istream};
+	DacPM::VimParsing::SharingBufferedStdinStreambuf streambuf {istream};
 	std::istream bufferedIstream {&streambuf};
 
 	std::vector<TicketFromVim> tickets {};
@@ -30,7 +30,7 @@ std::vector<TicketFromVim> readTickets(std::istream& istream)
 	return tickets;
 }
 
-TicketFromVim::TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::StdinWithUngetStreambuf& streambuf)
+TicketFromVim::TicketFromVim(std::istream& bufferedIstream, DacPM::VimParsing::SharingBufferedStdinStreambuf& streambuf)
 	: fields(FieldsCount) 
 {
 	size_t index {0};

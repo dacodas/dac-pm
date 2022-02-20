@@ -1,12 +1,12 @@
 #include "DescriptionGrabber.h"
-#include "StdinWithUngetStreambuf.h"
+#include "SharingBufferedStdinStreambuf.h"
 
 #include <cstring>
 #include <algorithm>
 
 namespace DacPM::VimParsing {
 
-DescriptionGrabber::DescriptionGrabber(StdinWithUngetStreambuf& streambuf)
+DescriptionGrabber::DescriptionGrabber(SharingBufferedStdinStreambuf& streambuf)
 	: source {streambuf} {}
 
 DescriptionGrabber::HyphenReturn DescriptionGrabber::handleHyphen(char* hyphen)

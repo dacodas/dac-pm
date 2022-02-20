@@ -6,19 +6,19 @@
 
 namespace DacPM::VimParsing {
 
-class StdinWithUngetStreambuf;
+class SharingBufferedStdinStreambuf;
 
 // This buffer is shared with the streambuf buffering stdin
 class DescriptionGrabber
 {
 	static constexpr std::size_t targetHyphens {3};
 
-	StdinWithUngetStreambuf& source;
+	SharingBufferedStdinStreambuf& source;
 	size_t currentHyphenCount {0};
 	bool finished {false};
 
 public:
-	DescriptionGrabber(StdinWithUngetStreambuf&);
+	DescriptionGrabber(SharingBufferedStdinStreambuf&);
 	void grab(std::string&);
 
 private:
