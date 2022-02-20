@@ -1,8 +1,50 @@
+# Right in front of me
+
+- Parse out relations
+
+## Relations
+
+My goal here is to make this as simple as possible. As such, I propose the
+following:
+
+```
+enum class Context {
+	SingleLineFields,
+	Description,
+	Relation,
+	Invalid
+};
+```
+
+After every double-line break, we have to determine if the next line is a
+relation or another line of description.
+
+### High-level
+
+The next line is a relation if
+
+1. It starts with one of the relation key words followed by a space
+2. It contains the name of a previously mentioned issue in quotes 
+   - We know that this will be a single line
+
+### Some caveats
+
+The only viable thing for relations to be followed by is another relation, or
+the ending delimiter `---`.
+
+<aside>
+<p>I've been enjoying reading the SQLite grammars, and would like to consider
+replicating that here. It uses a program called <a href=
+"#pikchr">Pikchr</a></p>
+</aside>
+
 # Overview
 
 - How about issues that touch multiple applications?
   - Primary application and allow for secondaries in another table?
   - Generate all combinations? 🤣
+  - I think we should just add an additional table that marks one of the
+    relations as the PRIMARY one
 - Consider date and duration pickers and how to represent them in the buffer
   - Consider ISO 8601 duration standard
   - Also consider [this excellent library][howard-date]
@@ -147,3 +189,10 @@ Description  : This is actually several separate C++11/C++14/C++17 libraries:
              : Slightly modified versions of "date.h" and "tz.h" were voted into
              : the C++20 working draft.
 ```
+
+# Footnotes and references
+
+<p id="pikchr"><a href=
+"https://pikchr.org/home/doc/trunk/doc/sqlitesyntax.md">Pikchr</a></p>
+
+
