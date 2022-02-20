@@ -1,124 +1,15 @@
-// I expect this class to help us go from the std::vector<std::string> to
-// something much closer to what we'll be putting in the database
-
-// sqlite3 can already handle the ISO 8601 with:
-//
-// select strftime('%s', '2022-02-18 10:00');
-
-// We already have the example parser for the durations that we improve later
-
-// We will be using different functions to transform and bind each argument, so
-// that must be accounted for
-
 #include <cstddef>
 #include <iostream>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include <sqlite3.h>
 
 #include "TicketFromVim.h"
-#include "iso-8601-duration-mock.h"
-
-namespace DacPM::Wranglers {
-
-enum class Status {
-	Error,
-	Success
-};
-
-template <typename Value>
-struct ConversionResult {
-	Value converted;
-	Status status;
-};
-
-template <typename Value>
-using ConversionFunction = ConversionResult<Value> (*)(const std::string&);
-
-template <typename Value>
-using BindFunction = int (*)(sqlite3_stmt *, std::size_t, Value);
-
-template <typename Value>
-struct Wrangler {
-	ConversionFunction<Value> conversion;
-	BindFunction<Value> bind;
-};
-
-using WranglerUnion = 
-	std::variant<
-		Wrangler<int>,
-		Wrangler<const std::string&>
-	>;
-
-auto identity = [] (const std::string& value) -> ConversionResult<const std::string&> {
-	return {value, Status::Success};
-};
-
-auto parseDuration = [] (const std::string& string) -> ConversionResult<int> {
-	return {parseISO8601Duration(string.data()), Status::Success};
-};
-
-auto bindString = [] (sqlite3_stmt *statement, std::size_t index, const std::string& value) -> int {
-	return sqlite3_bind_text(statement, index, value.data(), value.size(), SQLITE_STATIC);
-};
-
-auto bindInt = [] (sqlite3_stmt *statement, std::size_t index, int value) -> int {
-	return sqlite3_bind_int(statement, index, value);
-};
-
-std::vector<WranglerUnion> wranglers {
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<int> { parseDuration, bindInt },
-	Wrangler<int> { parseDuration, bindInt },
-	Wrangler<const std::string&> { identity, bindString},
-	Wrangler<const std::string&> { identity, bindString },
-	Wrangler<const std::string&> { identity, bindString }
-};
-
-template <typename Wrangler>
-int wrangle(sqlite3_stmt *statement, Wrangler& wrangler, const std::string& field, std::size_t index) 
-{
-	auto& [conversion, bind] = wrangler;
-
-	auto&& [converted, status] { conversion(field) };
-
-	if ( status != Status::Success )
-	{
-		std::cerr << "Failed converting field '" << field << "'\n";
-		exit(1);
-	}
-
-	return bind(statement, index + 1, converted);
-}
-
-int bind(sqlite3_stmt *statement, const std::vector<std::string>& fields, std::vector<WranglerUnion>& wranglers)
-{
-	for ( std::size_t index {0} ; index < wranglers.size() ; ++index )
-	{
-		WranglerUnion& wrangler {wranglers[index]};
-
-		auto result = std::visit([statement, index, &fields](auto& wrangler) -> int {
-			return wrangle(statement, wrangler, fields[index], index);
-		}, wrangler);
-
-		if ( result != SQLITE_OK )
-
-			return result;
-	} 
-
-	return SQLITE_OK;
-}
-
-}
+#include "ConversionBindingWrangler.h"
 
 // Another option to explore here to do these all in a single statement is to
 // generate a proper string of `(?, ?, ?, ?, ?)` and pass them as VALUES. The
