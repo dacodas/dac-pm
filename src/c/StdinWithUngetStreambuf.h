@@ -16,7 +16,7 @@ private:
 	bool atEnd {false};
 
 	void ensureGetAreaEndWithBuffer();
-	void checkIfEnd(std::streamsize, std::streamsize);
+	void checkIfExhaustedUnderlyingBuffer(std::streamsize, std::streamsize);
 
 protected:
 	int_type underflow();
@@ -31,7 +31,6 @@ public:
 	char_type* gptr() const;
 	char_type* egptr() const;
 
-	int_type sungetc();
 	void advanceTo(char *);
 };
 
