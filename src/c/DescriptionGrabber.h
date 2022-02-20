@@ -39,5 +39,7 @@ private:
 	};
 
 	HyphenReturn handleHyphen(char* hyphen);
+
+	void copyAndAdvance(std::string&, char *, char *);
 };
 }

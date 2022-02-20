@@ -19,21 +19,17 @@ DescriptionGrabber::HyphenReturn DescriptionGrabber::handleHyphen(char* hyphen)
 		std::find_if_not(hyphen + 1, source.egptr(), [] (char c) { return c == '-'; })
 	};
 
-	std::size_t additionalHyphens { nonHyphen - hyphen };
+	std::size_t hyphensFound { nonHyphen - hyphen };
 
-	if ( currentHyphenCount + additionalHyphens >= targetHyphens )
+	if ( currentHyphenCount + hyphensFound >= targetHyphens )
 	{
-		// Set the end of the streambuf to hyphen because we will be
-		// needing to return EOF after that
-		std::cerr << "We found the proper number of hyphens!\n";
 		finished = true;
 		return {HyphenStatus::Success, nonHyphen};
 	}
 	else if ( nonHyphen != source.egptr() )
 	{
-		// We have come across a series of insufficient hyphens, so we
-		// will start our count anew
-		std::cerr << "We didn't find enough hyphens there, so we are restarting the count\n";
+		// We didn't find enough hyphens there, so we are restarting
+		// the count
 		currentHyphenCount = 0;
 		return {HyphenStatus::FalseAlarm, nonHyphen};
 	}
@@ -46,30 +42,39 @@ DescriptionGrabber::HyphenReturn DescriptionGrabber::handleHyphen(char* hyphen)
 	}
 }
 
-void DescriptionGrabber::grab(std::string& target)
+void DescriptionGrabber::copyAndAdvance(std::string& destination, char *hyphen, char *copyEnd)
+{
+	auto destinationSize {destination.size()};
+
+	std::streamsize sizeToCopy { hyphen - source.gptr() };
+	destination.resize(destinationSize + sizeToCopy);
+	std::memcpy(destination.data() + destinationSize, source.gptr(), sizeToCopy);
+	source.advanceTo( copyEnd );
+}
+
+void DescriptionGrabber::grab(std::string& destination)
 {
 	auto eof {std::char_traits<char>::eof()};
 
 	while ( !finished )
 	{
-		std::streamsize charsToRead { source.sgetn(nullptr, bufferSize) };
+		std::streamsize charsRead { source.sgetn(nullptr, bufferSize) };
 
-		if ( charsToRead == eof )
+		if ( charsRead == eof )
 		{
 			std::cerr << "We reached the end of file looking for the end of the description section!\n";
 			exit(1);
 		}
 
-		char *hyphen { std::find(
-			source.gptr(), source.egptr(), '-'
-		) };
+		using enum HyphenStatus;
+
+		char
+			*copyEnd,
+			*hyphen { std::find(
+				source.gptr(), source.egptr(), '-'
+			) };
 
 		auto [status, endOfHyphens] = handleHyphen(hyphen);
-		auto currentSize {target.size()};
-
-		char *copyEnd;
-
-		using enum HyphenStatus;
 
 		switch (status)
 		{
@@ -86,10 +91,7 @@ void DescriptionGrabber::grab(std::string& target)
 		}
 		}
 
-		std::streamsize sizeToCopy { hyphen - source.gptr() };
-		target.resize(currentSize + sizeToCopy);
-		std::memcpy(target.data() + currentSize, source.gptr(), sizeToCopy);
-		source.advanceTo( copyEnd );
+		copyAndAdvance(destination, hyphen, copyEnd);
 	}
 }
 }
