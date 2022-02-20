@@ -188,10 +188,9 @@ void commitBatchOfTickets(std::vector<TicketFromVim>& tickets)
 		switch ( bind_result )
 		{
 			case SQLITE_OK:
-				std::cout << "Success binding!\n";
 				break;
 			default:
-				std::cout << "Failure binding...\n";
+				std::cerr << "Failure binding...\n";
 				fprintf(stderr, "%s\n", sqlite3_errmsg(db));
 				exit(1);
 				break;
